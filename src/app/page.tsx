@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Movie } from '@/types/movie';
 
 export default function Home() {
@@ -20,7 +21,7 @@ export default function Home() {
     if (userId) {
       handleSubmit(new Event('submit') as React.FormEvent);
     }
-  }, [userId]);
+  }, [userId, handleSubmit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,11 +86,12 @@ export default function Home() {
               rel="noopener noreferrer"
               className="flex bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
             >
-              <div className="w-48 flex-shrink-0">
-                <img
+              <div className="w-48 flex-shrink-0 relative h-72">
+                <Image
                   src={`/api/image?url=${encodeURIComponent(movie.pic)}`}
                   alt={movie.title}
-                  className="w-full h-72 object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <div className="flex-1 p-6">

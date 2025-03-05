@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       return new NextResponse('Invalid image domain. Only doubanio.com and its subdomains are allowed.', { status: 403 });
     }
   } catch (error) {
-    return new NextResponse('Invalid image URL', { status: 400 });
+    return new NextResponse(`Invalid image URL: ${error.message}`, { status: 400 });
   }
 
   try {

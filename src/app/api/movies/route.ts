@@ -122,7 +122,7 @@ export async function GET(request: Request) {
     return NextResponse.json(randomMovies);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch movies' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch movies' },
       { status: 500 }
     );
   }
