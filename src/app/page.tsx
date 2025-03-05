@@ -53,6 +53,12 @@ export default function Home() {
           豆瓣随机电影推荐
         </h1>
 
+        {!userId && (
+          <div className="text-center mb-8 text-gray-600">
+            从你的豆瓣想看列表中随机推荐一部电影，帮你解决选择困难症
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="mb-8 text-center">
           <input
             type="text"
