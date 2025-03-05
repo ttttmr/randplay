@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Movie } from '@/types/movie';
 
@@ -10,20 +10,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const savedUserId = localStorage.getItem('doubanUserId');
-    if (savedUserId) {
-      setUserId(savedUserId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      handleSubmit(new Event('submit') as React.FormEvent);
-    }
-  }, [userId, handleSubmit]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -43,7 +30,21 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    const savedUserId = localStorage.getItem('doubanUserId');
+    if (savedUserId) {
+      setUserId(savedUserId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      const event = { preventDefault: () => {} } as React.FormEvent;
+      handleSubmit(event);
+    }
+  }, [userId, handleSubmit]);
 
   return (
     <main className="min-h-screen p-8 bg-gray-100">

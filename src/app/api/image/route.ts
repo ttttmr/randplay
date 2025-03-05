@@ -4,15 +4,19 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const imageUrl = searchParams.get('url');
 
+  if (!imageUrl) {
+    return new NextResponse('Image URL is required', { status: 400 });
+  }
+
   // 验证URL域名
   try {
-    const urlObj = new URL(imageUrl || '');
+    const urlObj = new URL(imageUrl);
     const hostname = urlObj.hostname;
     if (!hostname.endsWith('.doubanio.com')) {
       return new NextResponse('Invalid image domain. Only doubanio.com and its subdomains are allowed.', { status: 403 });
     }
   } catch (error) {
-    return new NextResponse(`Invalid image URL: ${error.message}`, { status: 400 });
+    return new NextResponse(`Invalid image URL: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 400 });
   }
 
   try {

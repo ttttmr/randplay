@@ -67,7 +67,8 @@ async function fetchDoubanWishlist(userId: string): Promise<Movie[]> {
           year: '',
           duration: '',
           playable: false,
-          rating: ''
+          rating: '',
+          addedAt: ''
         };
         const title = $item.find('.title')
         const link = title.find('a').attr('href');
