@@ -14,21 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "今天看啥 - 豆瓣电影随机推荐",
-  description: "从你的豆瓣想看列表中随机推荐一部电影，帮你解决选择困难症",
+  title: "今天看啥 - 豆瓣随机推荐",
+  description: "从你的豆瓣想看列表中随机推荐一部电影或图书，帮你解决选择困难症",
   keywords: "豆瓣,电影,随机,推荐,选片,想看",
-  authors: [{ name: "豆瓣随机电影推荐" }],
+  authors: [{ name: "豆瓣随机推荐" }],
   openGraph: {
-    title: "今天看啥 - 豆瓣电影随机推荐",
-    description: "从你的豆瓣想看列表中随机推荐一部电影，帮你解决选择困难症",
+    title: "今天看啥 - 豆瓣随机推荐",
+    description: "从你的豆瓣想看列表中随机推荐一部电影或图书，帮你解决选择困难症",
     type: "website",
     locale: "zh_CN",
     siteName: "今天看啥"
   },
   twitter: {
     card: "summary",
-    title: "今天看啥 - 豆瓣电影随机推荐",
-    description: "从你的豆瓣想看列表中随机推荐一部电影，帮你解决选择困难症"
+    title: "今天看啥 - 豆瓣随机推荐",
+    description: "从你的豆瓣想看列表中随机推荐一部电影或图书，帮你解决选择困难症"
   }
 };
 

@@ -1,27 +1,11 @@
 import { NextResponse } from 'next/server';
-import * as cheerio from 'cheerio';
-import { Movie } from '@/types/movie';
-
-const doubanHeaders = {
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-  'Accept-Language': 'zh-CN,zh;q=0.9'
-};
+import { Movie } from '@/app/types';
+import { fetchDouban } from '../utils/douban';
 
 async function fetchDoubanWishlist(userId: string): Promise<Movie[]> {
   try {
     // 首先获取第一页以获取总数
-    const firstPageResponse = await fetch(
-      `https://movie.douban.com/people/${userId}/wish`,
-      { headers: doubanHeaders }
-    );
-
-    if (!firstPageResponse.ok) {
-      throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
-    }
-
-    const firstPageHtml = await firstPageResponse.text();
-    const firstPage$ = cheerio.load(firstPageHtml);
+    const firstPage$ = await fetchDouban(`https://movie.douban.com/people/${userId}/wish`)
 
     // 获取总数
     const totalText = firstPage$('h1').text();
@@ -43,17 +27,8 @@ async function fetchDoubanWishlist(userId: string): Promise<Movie[]> {
     const movies: Movie[] = [];
     const fetchPromises = Array.from(selectedPages).map(async (page) => {
       const start = page * perPage;
-      const response = await fetch(
-        `https://movie.douban.com/people/${userId}/wish?start=${start}&sort=time&rating=all&mode=grid&type=all&filter=all`,
-        { headers: doubanHeaders }
-      );
+      const $ = await fetchDouban(`https://movie.douban.com/people/${userId}/wish?start=${start}&sort=time&rating=all&mode=grid&type=all&filter=all`);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const html = await response.text();
-      const $ = cheerio.load(html);
       const items = $('.item.comment-item').toArray();
       
       for (const item of items) {

@@ -2,11 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { Movie } from '@/types/movie';
+import { Movie, Book } from '@/app/types';
+
+type TabType = 'movies' | 'books';
 
 export default function Home() {
   const [userId, setUserId] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const savedTab = localStorage.getItem('doubanActiveTab');
+    return (savedTab === 'movies' || savedTab === 'books') ? savedTab : 'movies';
+  });
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,21 +23,26 @@ export default function Home() {
     setError('');
 
     try {
-      const response = await fetch(`/api/movies?userId=${userId}`);
+      const endpoint = activeTab === 'movies' ? 'movies' : 'books';
+      const response = await fetch(`/api/${endpoint}?userId=${userId}`);
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '获取电影失败');
+        throw new Error(data.error || `获取${activeTab === 'movies' ? '电影' : '图书'}失败`);
       }
 
-      setMovies(data);
+      if (activeTab === 'movies') {
+        setMovies(data);
+      } else {
+        setBooks(data);
+      }
       localStorage.setItem('doubanUserId', userId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '获取电影失败');
+      setError(err instanceof Error ? err.message : `获取${activeTab === 'movies' ? '电影' : '图书'}失败`);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, activeTab]);
 
   useEffect(() => {
     const savedUserId = localStorage.getItem('doubanUserId');
@@ -50,12 +62,33 @@ export default function Home() {
     <main className="min-h-screen p-8 bg-gray-100">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          豆瓣随机电影推荐
+          豆瓣随机推荐
         </h1>
+
+        <div className="flex justify-center mb-8 space-x-4">
+          <button
+            onClick={() => {
+              setActiveTab('movies');
+              localStorage.setItem('doubanActiveTab', 'movies');
+            }}
+            className={`px-6 py-2 rounded-lg ${activeTab === 'movies' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'}`}
+          >
+            电影
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('books');
+              localStorage.setItem('doubanActiveTab', 'books');
+            }}
+            className={`px-6 py-2 rounded-lg ${activeTab === 'books' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'}`}
+          >
+            图书
+          </button>
+        </div>
 
         {!userId && (
           <div className="text-center mb-8 text-gray-600">
-            从你的豆瓣想看列表中随机推荐一部电影，帮你解决选择困难症
+            从你的豆瓣想看列表中随机推荐{activeTab === 'movies' ? '一部电影' : '一本书'}，帮你解决选择困难症
           </div>
         )}
 
@@ -85,7 +118,7 @@ export default function Home() {
         )}
 
         <div className="space-y-6">
-          {movies.map((movie) => (
+          {activeTab === 'movies' && movies.map((movie) => (
             <a
               key={movie.id}
               href={movie.link}
@@ -139,6 +172,59 @@ export default function Home() {
                     <div className="mb-2">
                       <span className="font-semibold">标记时间：</span>
                       {movie.addedAt}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </a>
+          ))}
+
+          {activeTab === 'books' && books.map((book) => (
+            <a
+              key={book.id}
+              href={book.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+            >
+              <div className="w-48 flex-shrink-0 relative h-72">
+                <Image
+                  src={`/api/image?url=${encodeURIComponent(book.pic)}`}
+                  alt={book.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1 p-6">
+                <div className="mb-4">
+                  <span className="text-xl font-semibold text-gray-900">
+                    {book.title}
+                  </span>
+                </div>
+                
+                <div className="mb-4 text-sm text-gray-600">
+                  {book.author && (
+                    <div className="mb-2">
+                      <span className="font-semibold">作者：</span>
+                      {book.author}
+                    </div>
+                  )}
+                  {book.publisher && (
+                    <div className="mb-2">
+                      <span className="font-semibold">出版社：</span>
+                      {book.publisher}
+                    </div>
+                  )}
+                  {book.year && (
+                    <div className="mb-2">
+                      <span className="font-semibold">出版日期：</span>
+                      {book.year}
+                    </div>
+                  )}
+                  {book.addedAt && (
+                    <div className="mb-2">
+                      <span className="font-semibold">标记时间：</span>
+                      {book.addedAt}
                     </div>
                   )}
                 </div>
