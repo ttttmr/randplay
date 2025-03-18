@@ -9,6 +9,9 @@ type TabType = 'movies' | 'books';
 export default function Home() {
   const [userId, setUserId] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (typeof window === 'undefined') {
+      return 'movies';
+    }
     const savedTab = localStorage.getItem('doubanActiveTab');
     return (savedTab === 'movies' || savedTab === 'books') ? savedTab : 'movies';
   });
