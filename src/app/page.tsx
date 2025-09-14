@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Movie, Book } from '@/app/types';
 
 type TabType = 'movies' | 'books';
+type MovieType = 'all' | 'movie' | 'tv';
 
 export default function Home() {
   const [userId, setUserId] = useState('');
@@ -19,6 +20,14 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [movieType, setMovieType] = useState<MovieType>('all');
+
+  useEffect(() => {
+    const savedMovieType = localStorage.getItem('doubanMovieType');
+    if (savedMovieType === 'all' || savedMovieType === 'movie' || savedMovieType === 'tv') {
+      setMovieType(savedMovieType);
+    }
+  }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +36,10 @@ export default function Home() {
 
     try {
       const endpoint = activeTab === 'movies' ? 'movies' : 'books';
-      const response = await fetch(`/api/${endpoint}?userId=${userId}`);
+      const url = activeTab === 'movies' 
+        ? `/api/${endpoint}?userId=${userId}&type=${movieType}`
+        : `/api/${endpoint}?userId=${userId}`;
+      const response = await fetch(url);
       const data = await response.json();
 
       if (!response.ok) {
@@ -45,7 +57,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [userId, activeTab]);
+  }, [userId, activeTab, movieType]);
 
   useEffect(() => {
     const savedUserId = localStorage.getItem('doubanUserId');
@@ -88,6 +100,38 @@ export default function Home() {
             图书
           </button>
         </div>
+
+        {activeTab === 'movies' && (
+          <div className="flex justify-center mb-6 space-x-2">
+            <button
+              onClick={() => {
+                setMovieType('all');
+                localStorage.setItem('doubanMovieType', 'all');
+              }}
+              className={`px-4 py-1 text-sm rounded-lg ${movieType === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'}`}
+            >
+              全部
+            </button>
+            <button
+              onClick={() => {
+                setMovieType('movie');
+                localStorage.setItem('doubanMovieType', 'movie');
+              }}
+              className={`px-4 py-1 text-sm rounded-lg ${movieType === 'movie' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'}`}
+            >
+              电影
+            </button>
+            <button
+              onClick={() => {
+                setMovieType('tv');
+                localStorage.setItem('doubanMovieType', 'tv');
+              }}
+              className={`px-4 py-1 text-sm rounded-lg ${movieType === 'tv' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'}`}
+            >
+              电视
+            </button>
+          </div>
+        )}
 
         {!userId && (
           <div className="text-center mb-8 text-gray-600">

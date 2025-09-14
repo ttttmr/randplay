@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { Movie } from '@/app/types';
 import { fetchDouban } from '../utils/douban';
 
-async function fetchDoubanWishlist(userId: string): Promise<Movie[]> {
+async function fetchDoubanWishlist(userId: string, type: string = 'all'): Promise<Movie[]> {
   try {
     // 首先获取第一页以获取总数
     const firstPage$ = await fetchDouban(`https://movie.douban.com/people/${userId}/wish`)
@@ -27,7 +27,7 @@ async function fetchDoubanWishlist(userId: string): Promise<Movie[]> {
     const movies: Movie[] = [];
     const fetchPromises = Array.from(selectedPages).map(async (page) => {
       const start = page * perPage;
-      const $ = await fetchDouban(`https://movie.douban.com/people/${userId}/wish?start=${start}&sort=time&rating=all&mode=grid&type=all&filter=all`);
+      const $ = await fetchDouban(`https://movie.douban.com/people/${userId}/wish?start=${start}&sort=time&rating=all&mode=grid&type=${type}&filter=all`);
 
       const items = $('.item.comment-item').toArray();
       
@@ -84,6 +84,7 @@ const RANDOM_MOVIE_COUNT = 3;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
+  const type = searchParams.get('type') || 'all';
 
   if (!userId) {
     return NextResponse.json(
@@ -93,7 +94,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const wishlist = await fetchDoubanWishlist(userId);
+    const wishlist = await fetchDoubanWishlist(userId, type);
     const randomMovies = getRandomMovies(wishlist, RANDOM_MOVIE_COUNT);
     return NextResponse.json(randomMovies);
   } catch (error) {
